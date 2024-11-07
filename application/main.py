@@ -1,8 +1,52 @@
 # main.py
 
+import sys
+import subprocess
+import importlib.metadata
+
+required_packages = [
+    'boto3',
+    'pandas',
+    'plotly',
+    'python-dotenv',
+    'ttkthemes',
+    'pygments',
+    'kaleido'
+]
+
+def ensure_pip():
+    try:
+        import pip
+    except ImportError:
+        print("pip is not installed. Installing pip...")
+        subprocess.check_call([sys.executable, '-m', 'ensurepip', '--default-pip'])
+
+def install_packages(packages):
+    python = sys.executable
+    try:
+        subprocess.check_call([python, '-m', 'pip', 'install', '--user', *packages])
+    except subprocess.CalledProcessError:
+        print(f"Failed to install packages: {packages}")
+        sys.exit(1)
+
+def check_and_install_packages():
+    installed_packages = {pkg.metadata['Name'].lower() for pkg in importlib.metadata.distributions()}
+    missing_packages = [pkg for pkg in required_packages if pkg.lower() not in installed_packages]
+    if missing_packages:
+        print(f"Installing missing packages: {missing_packages}")
+        install_packages(missing_packages)
+    else:
+        print("All required packages are already installed.")
+
+ensure_pip()
+check_and_install_packages()
+
+##################################################################################################
+
 import tkinter as tk
 from tkinter import ttk
 from ttkthemes import ThemedTk
+import os
 
 from aws_credentials import save_credentials, check_and_fill_credentials
 from query_execution import execute_query
@@ -24,7 +68,12 @@ def main():
     root.geometry("600x600")
     root.resizable(False, False)
 
-    root.iconbitmap('aws-athena.ico')
+    icon_path = os.path.join(os.path.dirname(__file__), 'aws-athena.ico')
+    
+    try:
+        root.iconbitmap(icon_path)
+    except tk.TclError:
+        print("Warning: Icon file not found or format not supported.")
 
     style = ttk.Style()
     style.theme_use(theme) 
