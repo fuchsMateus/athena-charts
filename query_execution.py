@@ -32,11 +32,10 @@ def execute_query(database_entry, catalog_entry, query_text, limit_entry, callba
         messagebox.showerror("Error", "Please fill in Database and Query fields.")
         return
 
-    # Adicionar LIMIT a query se não estiver presente
     if limit and 'limit' not in query.lower():
         query += f" LIMIT {limit}"
 
-    max_rows = int(limit_entry.get().strip() or '1000')  # Usar o valor de Limit como max_rows
+    max_rows = int(limit_entry.get().strip() or '1000')  
 
     try:
         query_result_df = athena_client.execute_query(query, database, catalog, max_rows)

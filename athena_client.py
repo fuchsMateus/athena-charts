@@ -23,7 +23,6 @@ class AthenaClient:
         query_execution_id = response['QueryExecutionId']
 
        
-        # Aguardar a conclusão da query
         while True:
             response = self.client.get_query_execution(QueryExecutionId=query_execution_id)
             status = response['QueryExecution']['Status']['State']
@@ -33,7 +32,6 @@ class AthenaClient:
                 raise Exception("Query failed: " + response['QueryExecution']['Status']['StateChangeReason'])
             time.sleep(1)
 
-        # Usar paginador para recuperar resultados
         paginator = self.client.get_paginator('get_query_results')
         page_iterator = paginator.paginate(QueryExecutionId=query_execution_id)
 
@@ -41,7 +39,7 @@ class AthenaClient:
         for page in page_iterator:
             for row in page['ResultSet']['Rows']:
                 rows.append(row)
-                if len(rows) >= max_rows + 1:  # +1 para incluir o header
+                if len(rows) >= max_rows + 1: 
                     break
             else:
                 continue
